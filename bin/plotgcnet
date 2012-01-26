@@ -76,15 +76,15 @@ def main(argv=None):
         'zorder': 25
     }
 
-    def msg(node):
-        print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
-
-    for node_ in sampled:
-        node = _name2iso(node_)
+    def draw(node):
         try:
             cm.draw_country(node, **country_kwargs)
         except:
-            msg(node)
+            print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
+
+    for node_ in sampled:
+        node = _name2iso(node_)
+        draw(node)
 
     # ignore this node, it's spurious 
     sampled.add('node')
@@ -103,19 +103,13 @@ def main(argv=None):
         for node in (src, dst):
             if node not in sampled:
                 sampled.add(node)
-                try:
-                    cm.draw_country(node, **country_kwargs)
-                except:
-                    msg(node)
+                draw(node)
 
     for node_ in graph.get_nodes():
         node = _name2iso(node_.get_name().strip('"'))
         if node not in sampled:
             sampled.add(node)
-            try:
-                cm.draw_country(node, **country_kwargs)
-            except:
-                msg(node)
+            draw(node)
 
     plt.savefig(pdffile, format='pdf', bbox_inches='tight', pad_inches=0.25)
 
