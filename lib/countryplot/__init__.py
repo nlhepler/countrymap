@@ -28,22 +28,7 @@ def shapefile2data(shapefile):
 
 def shape2collection(m, shape):
     shapetype = shape.shapeType
-#     if shapetype not in (1, 3, 5, 8):
-#         raise ValueError('shape2collection only supports 2D shapes')
     verts = shape.points
-#     if shapetype in (1, 8):
-#         lons, lats = list(zip(*verts))
-#         if (max(lons) >  721. or
-#             min(lons) < -721. or
-#             max(lats) >   91. or
-#             min(lats) <  -91.):
-#             raise ValueError('shape must have lat/lon vertices')
-#         if len(verts) > 1:
-#             x, y = m(lons, lats)
-#             coords.append(list(zip(x, y)))
-#         else:
-#             x, y = m(lons[0], lats[0])
-#             coords.append((x, y))
     if shapetype in (3, 5):
         parts = shp.parts.tolist()
         for idx1, idx2 in zip(parts, parts[1:] + [len(verts)]):
