@@ -104,22 +104,19 @@ def draw_gc(m, lon1, lat1, lon2, lat2, del_s=20., **kwargs):
     lonlats = gc.npts(lon1, lat1, lon2, lat2, npoints)
     lons = [lon1]
     lats = [lat1]
-    x1, y1 = None, None
+    xys = []
     for lon, lat in lonlats:
         # if we jump almost a whole globe away,
         # break the coords, resume afterwards
         if abs(lon - lons[-1]) > 170.:
-            x1, y1 = m(lons, lats)
+            xys.append(m(lons, lats))
             lons = [lon]
             lats = [lat]
         else:
             lons.append(lon)
             lats.append(lat)
-    x2, y2 = m(lons, lats)
-    ret = [m.plot(x2, y2, **kwargs)]
-    if x1 is not None and y1 is not None:
-        ret.insert(0, m.plot(x1, y1, **kwargs))
-    return ret
+    xys.append(m(lons, lats))
+    return [m.plot(x, y, **kwargs) for x, y in xys]
 
 
 class CountryMap(Basemap):
