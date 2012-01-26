@@ -167,7 +167,6 @@ class CountryMap(Basemap):
         d2 = CountryMap._isodata(self, iso2)
         lon1, lat1 = d1['LON'], d1['LAT']
         lon2, lat2 = d2['LON'], d2['LAT']
-#         self.drawgreatcircle(lon1, lat1, lon2, lat2, **kwargs)
         draw_gc(self, lon1, lat1, lon2, lat2, **kwargs)
 
     def draw_country(self, iso, color=None, edgecolor=None, linewidth=None, alpha=None):
