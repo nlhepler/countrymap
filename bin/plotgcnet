@@ -1,0 +1,339 @@
+#!/usr/bin/env python3.2
+
+import sys
+
+import matplotlib as mpl
+mpl.use('pdf')
+
+import matplotlib.pyplot as plt
+
+from pydot import graph_from_dot_file
+
+from countrymap import CountryMap, colors
+
+
+def _name2iso(name):
+    if name not in _namemap:
+        return name
+    return _namemap[name]
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    args = argv[1:]
+
+    try:
+        assert(len(args) == 2)
+        dotfile = args[0]
+        pdffile = args[1]
+    except:
+        print('usage: plotgcnet DOTFILE OUTPUTPDF')
+        return -1
+
+    cm = CountryMap(
+        projection='merc',
+        llcrnrlon=-180.,
+        llcrnrlat= -56.,
+        urcrnrlon= 180.,
+        urcrnrlat=  71.5,
+        resolution='i')
+
+    cm.drawcountries()
+    cm.drawmapboundary(fill_color=colors['lake_color'])
+    cm.fillcontinents(
+        color=colors['border_color'],
+        lake_color=colors['lake_color']
+    )
+
+    sampled = set()
+
+    graph = graph_from_dot_file(dotfile)
+
+    for edge in graph.get_edges():
+        src = _name2iso(edge.get_source())
+        dst = _name2iso(edge.get_destination())
+
+        try:
+            cm.draw_gc(src, dst)
+        except:
+            pass
+
+        for node in (src, dst):
+            if node not in sampled:
+                sampled.add(node)
+                try:
+                    cm.draw_country(
+                        node,
+                        color=colors['land_color']
+                    )
+                except:
+                    print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
+
+    for node in graph.get_nodes():
+        if node not in sampled:
+            sampled.add(node)
+            try:
+                cm.draw_country(
+                    node,
+                    color=colors['land_color']
+                )
+            except:
+                print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
+
+    plt.gca().patch.set_alpha(0.)
+    plt.gcf().patch.set_alpha(0.)
+
+    plt.savefig(pdffile, format='pdf', transparent=True, bbox_inches='tight', pad_inches=0.25)
+
+    return 0
+
+
+_namemap = {
+    'AFGHANISTAN': 'AF',
+    'ALBANIA': 'AL',
+    'ALGERIA': 'DZ',
+    'AMERICAN_SAMOA': 'AS',
+    'ANDORRA': 'AD',
+    'ANGOLA': 'AO',
+    'ANGUILLA': 'AI',
+    'ANTARCTICA': 'AQ',
+    'ANTIGUA_AND_BARBUDA': 'AG',
+    'ARGENTINA': 'AR',
+    'ARUBA': 'AW',
+    'AUSTRALIA': 'AU',
+    'AUSTRIA': 'AT',
+    'AZERBAIJAN': 'AZ',
+    'BAHAMAS': 'BS',
+    'BAHRAIN': 'BH',
+    'BANGLADESH': 'BD',
+    'BARBADOS': 'BB',
+    'BELARUS': 'BY',
+    'BELGIUM': 'BE',
+    'BELIZE': 'BZ',
+    'BENIN': 'BJ',
+    'BERMUDA': 'BM',
+    'BHUTAN': 'BT',
+    'BOLIVIA': 'BO',
+    'BOSNIA_AND_HERZEGOWINA': 'BA',
+    'BOTSWANA': 'BW',
+    'BOUVET_ISLAND': 'BV',
+    'BRAZIL': 'BR',
+    'BRITISH_INDIAN_OCEAN_TERRITORY': 'IO',
+    'BRITISH_VIRGIN_ISLANDS': 'VG',
+    'BRUNEI_DARUSSALAM': 'BN',
+    'BULGARIA': 'BG',
+    'BURKINA_FASO': 'BF',
+    'BURUNDI': 'BI',
+    'CAMBODIA': 'KH',
+    'CAMEROON': 'CM',
+    'CANADA': 'CA',
+    'CAPE_VERDE': 'CV',
+    'CAYMAN_ISLANDS': 'KY',
+    'CENTRAL_AFRICAN_REPUBLIC': 'CF',
+    'CHAD': 'TD',
+    'CHILE': 'CL',
+    'CHINA': 'CN',
+    'CHRISTMAS_ISLAND': 'CX',
+    'COCOS_ISLANDS': 'CC',
+    'COLOMBIA': 'CO',
+    'COMOROS': 'KM',
+    'CONGO': 'CG',
+    'COOK_ISLANDS': 'CK',
+    'COSTA_RICA': 'CR',
+    'COTE_DIVOIRE': 'CI',
+    'CROATIA': 'HR',
+    'CUBA': 'CU',
+    'CYPRUS': 'CY',
+    'CZECH_REPUBLIC': 'CZ',
+    'DENMARK': 'DK',
+    'DJIBOUTI': 'DJ',
+    'DOMINICA': 'DM',
+    'DOMINICAN_REPUBLIC': 'DO',
+    'EAST_TIMOR': 'TP',
+    'ECUADOR': 'EC',
+    'EGYPT': 'EG',
+    'EL_SALVADOR': 'SV',
+    'EQUATORIAL_GUINEA': 'GQ',
+    'ERITREA': 'ER',
+    'ESTONIA': 'EE',
+    'ETHIOPIA': 'ET',
+    'FALKLAND_ISLANDS': 'FK',
+    'FAROE_ISLANDS': 'FO',
+    'FIJI': 'FJ',
+    'FINLAND': 'FI',
+    'FORMER_ZAIRE': 'CD',
+    'FRANCE': 'FR',
+    'FRENCH_GUIANA': 'GF',
+    'FRENCH_POLYNESIA': 'PF',
+    'FRENCH_SOUTHERN_TERRITORIES': 'TF',
+    'GABON': 'GA',
+    'GAMBIA': 'GM',
+    'GEORGIA': 'GE',
+    'GERMANY': 'DE',
+    'GHANA': 'GH',
+    'GIBRALTAR': 'GI',
+    'GREECE': 'GR',
+    'GREENLAND': 'GL',
+    'GRENADA': 'GD',
+    'GUADELOUPE': 'GP',
+    'GUAM': 'GU',
+    'GUATEMALA': 'GT',
+    'GUINEA': 'GN',
+    'GUINEA-BISSAU': 'GW',
+    'GUYANA': 'GY',
+    'HAITI': 'HT',
+    'HEARD_AND_MCDONALD_ISLANDS': 'HM',
+    'HONDURAS': 'HN',
+    'HONG_KONG': 'HK',
+    'HUNGARY': 'HU',
+    'ICELAND': 'IS',
+    'INDIA': 'IN',
+    'INDONESIA': 'ID',
+    'IRAN': 'IR',
+    'IRAQ': 'IQ',
+    'IRELAND': 'IE',
+    'IRIAN_JAYA': 'IJ',
+    'ISRAEL': 'IL',
+    'ITALY': 'IT',
+    'JAMAICA': 'JM',
+    'JAPAN': 'JP',
+    'JORDAN': 'JO',
+    'KAZAKHSTAN': 'KZ',
+    'KENYA': 'KE',
+    'KIRIBATI': 'KI',
+    'KUWAIT': 'KW',
+    'KYRGYZSTAN': 'KG',
+    'LAOS': 'LA',
+    'LATVIA': 'LV',
+    'LEBANON': 'LB',
+    'LESOTHO': 'LS',
+    'LIBERIA': 'LR',
+    'LIBYA': 'LY',
+    'LIECHTENSTEIN': 'LI',
+    'LITHUANIA': 'LT',
+    'LUXEMBOURG': 'LU',
+    'MACAU': 'MO',
+    'MACEDONIA': 'MK',
+    'MADAGASCAR': 'MG',
+    'MALAWI': 'MW',
+    'MALAYSIA': 'MY',
+    'MALDIVES': 'MV',
+    'MALI': 'ML',
+    'MALTA': 'MT',
+    'MARSHALL_ISLANDS': 'MH',
+    'MARTINIQUE': 'MQ',
+    'MAURITANIA': 'MR',
+    'MAURITIUS': 'MU',
+    'MAYOTTE': 'YT',
+    'METROPOLITAN_FRANCE': 'FX',
+    'MEXICO': 'MX',
+    'MICRONESIA': 'FM',
+    'MOLDOVA': 'MD',
+    'MONACO': 'MC',
+    'MONGOLIA': 'MN',
+    'MONTSERRAT': 'MS',
+    'MOROCCO': 'MA',
+    'MOZAMBIQUE': 'MZ',
+    'MYANMAR': 'MM',
+    'NAMIBIA': 'NA',
+    'NAURU': 'NR',
+    'NEPAL': 'NP',
+    'NETHERLANDS': 'NL',
+    'NETHERLANDS_ANTILLES': 'AN',
+    'NEUTRAL_ZONE': 'NT',
+    'NEW_CALEDONIA': 'NC',
+    'NEW_ZEALAND': 'NZ',
+    'NICARAGUA': 'NI',
+    'NIGER': 'NE',
+    'NIGERIA': 'NG',
+    'NIUE': 'NU',
+    'NORFOLK_ISLAND': 'NF',
+    'NORTHERN_MARIANA_ISLANDS': 'MP',
+    'NORTH_KOREA': 'KP',
+    'NORWAY': 'NO',
+    'OMAN': 'OM',
+    'PAKISTAN': 'PK',
+    'PALAU': 'PW',
+    'PANAMA': 'PA',
+    'PAPUA_NEW_GUINEA': 'PG',
+    'PARAGUAY': 'PY',
+    'PERU': 'PE',
+    'PHILIPPINES': 'PH',
+    'PITCAIRN': 'PN',
+    'POLAND': 'PL',
+    'PORTUGAL': 'PT',
+    'PUERTO_RICO': 'PR',
+    'QATAR': 'QA',
+    'REUNION': 'RE',
+    'ROMANIA': 'RO',
+    'RUSSIA': 'RU',
+    'RWANDA': 'RW',
+    'SAINT_KITTS_AND_NEVIS': 'KN',
+    'SAINT_LUCIA': 'LC',
+    'SAINT_VINCENT_AND_THE_GRENADINES': 'VC',
+    'SAMOA': 'WS',
+    'SAN_MARINO': 'SM',
+    'SAO_TOME_AND_PRINCIPE': 'ST',
+    'SAUDI_ARABIA': 'SA',
+    'SENEGAL': 'SN',
+    'SERBIA_AND_MONTENEGRO': 'CS',
+    'SEYCHELLES': 'SC',
+    'SIERRA_LEONE': 'SL',
+    'SINGAPORE': 'SG',
+    'SLOVAKIA': 'SK',
+    'SLOVENIA': 'SI',
+    'SOLOMON_ISLANDS': 'SB',
+    'SOMALIA': 'SO',
+    'SOUTH_AFRICA': 'ZA',
+    'SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS': 'GS',
+    'SOUTH_KOREA': 'KR',
+    'SPAIN': 'ES',
+    'SRI_LANKA': 'LK',
+    'ST_HELENA': 'SH',
+    'ST_PIERRE_AND_MIQUELON': 'PM',
+    'SUDAN': 'SD',
+    'SURINAME': 'SR',
+    'SVALBARD_AND_JAN_MAYEN_ISLANDS': 'SJ',
+    'SWAZILAND': 'SZ',
+    'SWEDEN': 'SE',
+    'SWITZERLAND': 'CH',
+    'SYRIAN_ARAB_REPUBLIC': 'SY',
+    'TAIWAN': 'TW',
+    'TAJIKISTAN': 'TJ',
+    'TANZANIA': 'TZ',
+    'THAILAND': 'TH',
+    'TOGO': 'TG',
+    'TOKELAU': 'TK',
+    'TONGA': 'TO',
+    'TRINIDAD_AND_TOBAGO': 'TT',
+    'TUNISIA': 'TN',
+    'TURKEY': 'TR',
+    'TURKMENISTAN': 'TM',
+    'TURKS_AND_CAICOS_ISLANDS': 'TC',
+    'TUVALU': 'TV',
+    'UGANDA': 'UG',
+    'UKRAINE': 'UA',
+    'UNITED_ARAB_EMIRATES': 'AE',
+    'UNITED_KINGDOM': 'GB',
+    'UNITED_STATES': 'US',
+    'UNITED_STATES_MINOR_OUTLYING_ISLANDS': 'UM',
+    'URUGUAY': 'UY',
+    'US_VIRGIN_ISLANDS': 'VI',
+    'UZBEKISTAN': 'UZ',
+    'VANUATU': 'VU',
+    'VATICAN_CITY': 'VA',
+    'VENEZUELA': 'VE',
+    'VIET_NAM': 'VN',
+    'WALLIS_AND_FUTUNA_ISLANDS': 'WF',
+    'WESTERN_SAHARA': 'EH',
+    'YEMEN': 'YE',
+    'YUGOSLAVIA': 'YU',
+    'ZAMBIA': 'ZM',
+    'ZIMBABWE': 'ZW'
+}
+
+
+if __name__ == '__main__':
+    sys.exit(main())
