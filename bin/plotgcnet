@@ -38,7 +38,7 @@ def main(argv=None):
                     assert(0)
         assert(len(args) == 0)
     except:
-        print('usage: plotgcnet DOTFILE OUTPUTPDF')
+        print('usage: plotgcnet [-S SAMPLEDCOUNTRIES] DOTFILE OUTPUTPDF')
         return -1
 
     cm = CountryMap(
