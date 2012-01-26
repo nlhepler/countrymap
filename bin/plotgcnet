@@ -26,13 +26,14 @@ def main(argv=None):
 
     try:
         assert(len(args) >= 2)
+        sampled = set()
         pdffile = args.pop(-1)
         dotfile = args.pop(-1)
         for i in range(len(args)-1, -1, -1):
             arg = args[i]
             if arg[0] == '-':
                 if arg[1] == 'S':
-                    sampled = set(args.pop(i+1).split(','))
+                    sampled |= set(args.pop(i+1).split(','))
                     del args[i]
                 else:
                     assert(0)
