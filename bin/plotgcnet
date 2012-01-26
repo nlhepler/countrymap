@@ -25,9 +25,18 @@ def main(argv=None):
     args = argv[1:]
 
     try:
-        assert(len(args) == 2)
-        dotfile = args[0]
-        pdffile = args[1]
+        assert(len(args) >= 2)
+        pdffile = args.pop(-1)
+        dotfile = args.pop(-1)
+        for i in range(len(args)-1, -1, -1):
+            arg = args[i]
+            if arg[0] == '-':
+                if arg[1] == 'S':
+                    sampled = set(args.pop(i+1).split(','))
+                    del args[i]
+                else:
+                    assert(0)
+        assert(len(args) == 0)
     except:
         print('usage: plotgcnet DOTFILE OUTPUTPDF')
         return -1
@@ -53,7 +62,27 @@ def main(argv=None):
         lake_color=colors['lake_color']
     )
 
-    sampled = set(['node'])
+    country_kwargs = {
+        'color': colors['land_color'],
+        'linewidth': 0.
+    }
+
+    gc_kwargs = {
+        'color': colors['edge_color'],
+        'alpha': alphas['edge_alpha'],
+        'linewidth': 0.5,
+        'zorder': 25
+    }
+
+    for node_ in sampled:
+        node = _name2iso(node_)
+        try:
+            cm.draw_country(node, **country_kwargs)
+        except:
+            print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
+
+    # ignore this node, it's spurious 
+    sampled.add('node')
 
     graph = graph_from_dot_file(dotfile)
 
@@ -62,25 +91,15 @@ def main(argv=None):
         dst = _name2iso(edge.get_destination().strip('"'))
 
         try:
-            cm.draw_gc(
-                src, dst,
-                color=colors['edge_color'],
-                alpha=alphas['edge_alpha'],
-                linewidth=0.5,
-                zorder=25
-            )
+            cm.draw_gc(src, dst, **gc_kwargs)
         except:
-            raise
+            pass
 
         for node in (src, dst):
             if node not in sampled:
                 sampled.add(node)
                 try:
-                    cm.draw_country(
-                        node,
-                        color=colors['land_color'],
-                        linewidth=0.,
-                    )
+                    cm.draw_country(node, **country_kwargs)
                 except:
                     print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
 
@@ -89,11 +108,7 @@ def main(argv=None):
         if node not in sampled:
             sampled.add(node)
             try:
-                cm.draw_country(
-                    node,
-                    color=colors['land_color'],
-                    linewidth=0.
-                )
+                cm.draw_country(node, **country_kwargs)
             except:
                 print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
 

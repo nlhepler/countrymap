@@ -1,5 +1,4 @@
 
-from itertools import chain
 from os.path import dirname, exists, join, abspath
 
 from matplotlib.collections import LineCollection
@@ -56,7 +55,12 @@ def shapefile2data(shapefile):
 
 
 def data2isodict(data):
-    new2dead = dict(chain(*([(new, dead) for new in news] for dead, news in _dead_countries.items())))
+    new2dead = {}
+    for dead, news in _dead_countries.items():
+        for new in news:
+            if new not in new2dead:
+                new2dead[new] = []
+            new2dead[new].append(dead)
     isodict = {}
     for row in data:
         if 'ISO2' not in row:
@@ -64,10 +68,11 @@ def data2isodict(data):
         isocode = row['ISO2']
         isodict[isocode] = [row]
         if isocode in new2dead:
-            deadcode = new2dead[isocode]
-            if deadcode not in isodict:
-                isodict[deadcode] = []
-            isodict[deadcode].append(row)
+            deadcodes = new2dead[isocode]
+            for deadcode in deadcodes:
+                if deadcode not in isodict:
+                    isodict[deadcode] = []
+                isodict[deadcode].append(row)
     return isodict
 
 
