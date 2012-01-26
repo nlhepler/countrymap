@@ -21,5 +21,5 @@ setup(name='countrymap',
       data_files=[('/usr/local/bin', [
             'bin/plotgcnet'
       ])],
-      requires=['matplotlib', 'mpl_toolkits.basemap', 'numpy', 'pydot']
+      requires=['matplotlib', 'mpl_toolkits.basemap', 'pydot']
      )
