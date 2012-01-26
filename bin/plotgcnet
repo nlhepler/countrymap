@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from pydot import graph_from_dot_file
 
-from countrymap import CountryMap, colors
+from countrymap import CountryMap, alphas, colors
 
 
 def _name2iso(name):
@@ -40,25 +40,37 @@ def main(argv=None):
         urcrnrlat=  71.5,
         resolution='i')
 
-    cm.drawcountries()
+    lines = cm.drawcountries(
+        color=colors['border_color'],
+        linewidth=0.25,
+        zorder=20
+    )
+    lines.set_alpha(alphas['border_alpha'])
+
     cm.drawmapboundary(fill_color=colors['lake_color'])
     cm.fillcontinents(
         color=colors['border_color'],
         lake_color=colors['lake_color']
     )
 
-    sampled = set()
+    sampled = set(['node'])
 
     graph = graph_from_dot_file(dotfile)
 
     for edge in graph.get_edges():
-        src = _name2iso(edge.get_source())
-        dst = _name2iso(edge.get_destination())
+        src = _name2iso(edge.get_source().strip('"'))
+        dst = _name2iso(edge.get_destination().strip('"'))
 
         try:
-            cm.draw_gc(src, dst)
+            cm.draw_gc(
+                src, dst,
+                color=colors['edge_color'],
+                alpha=alphas['edge_alpha'],
+                linewidth=0.5,
+                zorder=25
+            )
         except:
-            pass
+            raise
 
         for node in (src, dst):
             if node not in sampled:
@@ -66,26 +78,26 @@ def main(argv=None):
                 try:
                     cm.draw_country(
                         node,
-                        color=colors['land_color']
+                        color=colors['land_color'],
+                        linewidth=0.,
                     )
                 except:
                     print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
 
-    for node in graph.get_nodes():
+    for node_ in graph.get_nodes():
+        node = _name2iso(node_.get_name().strip('"'))
         if node not in sampled:
             sampled.add(node)
             try:
                 cm.draw_country(
                     node,
-                    color=colors['land_color']
+                    color=colors['land_color'],
+                    linewidth=0.
                 )
             except:
                 print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
 
-    plt.gca().patch.set_alpha(0.)
-    plt.gcf().patch.set_alpha(0.)
-
-    plt.savefig(pdffile, format='pdf', transparent=True, bbox_inches='tight', pad_inches=0.25)
+    plt.savefig(pdffile, format='pdf', bbox_inches='tight', pad_inches=0.25)
 
     return 0
 

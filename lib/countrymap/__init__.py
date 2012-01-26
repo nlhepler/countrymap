@@ -1,4 +1,5 @@
 
+from itertools import chain
 from os.path import dirname, exists, join, abspath
 
 from matplotlib.collections import LineCollection
@@ -24,7 +25,7 @@ __all__ = [
 
 # based on google colors, for consistency
 colors = {
-    'continents': '#f4f3f0',
+    'land_color': '#f4f3f0',
     'lake_color': '#a5bfdd',
     'edge_color': 'k',
     'border_color': '#c6c5c2'
@@ -49,13 +50,13 @@ def shapefile2data(shapefile):
     records = []
     for record in shf.shapeRecords():
         datadict = dict(zip(fields, record.record))
-        datadict['SHAPE'] = record.shape
+        datadict['SHAPE'] = [record.shape]
         records.append(datadict)
     return records
 
 
 def data2isodict(data):
-    new2dead = dict((new, dead) for new in news for dead, news in _dead_countries)
+    new2dead = dict(chain(*([(new, dead) for new in news] for dead, news in _dead_countries.items())))
     isodict = {}
     for row in data:
         if 'ISO2' not in row:
@@ -94,15 +95,15 @@ def shape2collection(m, shapes):
 def draw_gc(m, lon1, lat1, lon2, lat2, del_s=20., **kwargs):
     gc = Geod(a=m.rmajor, b=m.rminor)
     _, _, dist = gc.inv(lon1, lat1, lon2, lat2)
-    npoints = int((0.5 * 1000 * del_s + dist) / (1000. * del_s))
+    npoints = int((0.5 * 1000. * del_s + dist) / (1000. * del_s))
     lonlats = gc.npts(lon1, lat1, lon2, lat2, npoints)
     lons = [lon1]
     lats = [lat1]
-    prevlon = lon1
     x1, y1 = None, None
     for lon, lat in lonlats:
-        # if we jump almost a whole globe away, 
-        if abs(lon - prevlon) > 170.:
+        # if we jump almost a whole globe away,
+        # break the coords, resume afterwards
+        if abs(lon - lons[-1]) > 170.:
             x1, y1 = m(lons, lats)
             lons = [lon]
             lats = [lat]
@@ -130,37 +131,41 @@ class CountryMap(Basemap):
         if 'projection' not in kwargs:
             kwargs['projection'] = 'merc'
         self._isodict = data2isodict(shapefile2data(shapefile))
-        for _, v in self._isodict.items():
-            if 'LAT' not in v or 'LON' not in v:
-                raise ValueError('we need lat/lon centroids for each country in the shapefile!')
+        for _, vs in self._isodict.items():
+            for v in vs:
+                if 'LAT' not in v or 'LON' not in v:
+                    raise ValueError('we need lat/lon centroids for each country in the shapefile!')
         self._deaddict = {}
         super(CountryMap, self).__init__(**kwargs)
 
     def _isodata(self, iso):
-        if iso in _dead_countries and iso not in self._deaddict:
+        if (iso in self._isodict and
+            len(self._isodict[iso]) > 1 and
+            iso not in self._deaddict):
             parts = self._isodict[iso]
             lons = [d['LON'] for d in parts]
             lats = [d['LAT'] for d in parts]
-            shapes = [d['SHAPE'] for d in parts]
+            shapes = [d['SHAPE'][0] for d in parts]
             lon = sum(lons) / len(lons)
             lat = sum(lats) / len(lats)
-            self._deaddict[iso] = [{
+            self._deaddict[iso] = {
                 'LAT': lat,
                 'LON': lon,
                 'SHAPE': shapes
-            }]
+            }
         if iso in self._deaddict:
             return self._deaddict[iso]
         elif iso in self._isodict:
-            return self._isodict[iso]
+            return self._isodict[iso][0]
         else:
             raise ValueError('%s is not a valid country code on file!' % iso)
 
     def draw_gc(self, iso1, iso2, **kwargs):
         d1 = CountryMap._isodata(self, iso1)
         d2 = CountryMap._isodata(self, iso2)
-        lon1, lat1 = d1['LON']; d1['LAT']
-        lon2, lat2 = d2['LON']; d2['LAT']
+        lon1, lat1 = d1['LON'], d1['LAT']
+        lon2, lat2 = d2['LON'], d2['LAT']
+#         self.drawgreatcircle(lon1, lat1, lon2, lat2, **kwargs)
         draw_gc(self, lon1, lat1, lon2, lat2, **kwargs)
 
     def draw_country(self, iso, color=None, edgecolor=None, linewidth=None, alpha=None):
