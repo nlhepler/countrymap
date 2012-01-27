@@ -111,7 +111,7 @@ def main(argv=None):
             sampled.add(node)
             draw(node)
 
-    plt.savefig(pdffile, format='pdf', bbox_inches='tight', pad_inches=0.25)
+    plt.savefig(pdffile, format='pdf', bbox_inches='tight', pad_inches=0.01)
 
     return 0
 
