@@ -30,7 +30,7 @@ colors = {
     'lake_color': '#a5bfdd',
     'edge_color': 'k',
     'border_color': '#9d9d9d',
-    'fade_color': '#d3d2d1' # '#c6c5c2'
+    'fade_color': '#c0c0bf' # '#d3d2d1' # '#c6c5c2'
 }
 
 
