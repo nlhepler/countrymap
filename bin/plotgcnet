@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from pydot import graph_from_dot_file
 
-from countrymap import CountryMap, alphas, colors, linewidths
+from countrymap import CountryMap, alphas, colors, enclaves, linewidths
 
 
 def _name2iso(name):
@@ -58,7 +58,10 @@ def main(argv=None):
     )
     lines.set_alpha(alphas['border_alpha'])
 
-    cm.drawmapboundary(fill_color=colors['lake_color'])
+    cm.drawmapboundary(
+        fill_color=colors['lake_color'],
+        linewidth=0.25
+    )
     cm.fillcontinents(
         color=colors['fade_color'],
         lake_color=colors['lake_color']
@@ -111,7 +114,16 @@ def main(argv=None):
             sampled.add(node)
             draw(node)
 
-    plt.savefig(pdffile, format='pdf', bbox_inches='tight', pad_inches=0.01)
+    # re-fade enclaves we've not sampled
+    for node in enclaves:
+        if node not in sampled:
+            sampled.add(node)
+            try:
+                cm.draw_country(node, color=colors['fade_color'], linewidth=0.)
+            except:
+                pass
+
+    plt.savefig(pdffile, format='pdf', bbox_inches='tight', pad_inches=0.)
 
     return 0
 

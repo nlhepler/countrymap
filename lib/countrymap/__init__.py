@@ -15,6 +15,7 @@ __all__ = [
     'colors',
     'alphas',
     'linewidths',
+    'enclaves',
     'shapefile2data',
     'data2isodict',
     'shape2collection',
@@ -50,6 +51,14 @@ _dead_countries = {
     'CS': ['ME', 'RS'],
     'YU': ['BA', 'HR', 'ME', 'MK', 'RS', 'SI']
 }
+
+
+# completely locked within a single country
+enclaves = [
+    'LS',
+    'SM',
+    'VA'
+]
 
 
 def shapefile2data(shapefile):
