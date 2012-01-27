@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from pydot import graph_from_dot_file
 
-from countrymap import CountryMap, alphas, colors
+from countrymap import CountryMap, alphas, colors, linewidths
 
 
 def _name2iso(name):
@@ -53,26 +53,26 @@ def main(argv=None):
 
     lines = cm.drawcountries(
         color=colors['border_color'],
-        linewidth=0.25,
+        linewidth=linewidths['border_width'],
         zorder=20
     )
     lines.set_alpha(alphas['border_alpha'])
 
     cm.drawmapboundary(fill_color=colors['lake_color'])
     cm.fillcontinents(
-        color=colors['border_color'],
+        color=colors['fade_color'],
         lake_color=colors['lake_color']
     )
 
     country_kwargs = {
-        'color': colors['land_color'],
+        'color': colors['park_color'],
         'linewidth': 0.
     }
 
     gc_kwargs = {
         'color': colors['edge_color'],
         'alpha': alphas['edge_alpha'],
-        'linewidth': 0.5,
+        'linewidth': linewidths['edge_width'],
         'zorder': 25
     }
 

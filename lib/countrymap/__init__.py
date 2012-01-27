@@ -14,6 +14,7 @@ __version__ = '0.0.1'
 __all__ = [
     'colors',
     'alphas',
+    'linewidths',
     'shapefile2data',
     'data2isodict',
     'shape2collection',
@@ -24,15 +25,23 @@ __all__ = [
 
 # based on google colors, for consistency
 colors = {
+    'park_color': '#c9dfaf',
     'land_color': '#f4f3f0',
     'lake_color': '#a5bfdd',
     'edge_color': 'k',
-    'border_color': '#c6c5c2'
+    'border_color': '#9d9d9d',
+    'fade_color': '#d3d2d1' # '#c6c5c2'
+}
+
+
+linewidths = {
+    'border_width': 0.09375,
+    'edge_width': 0.09375,
 }
 
 
 alphas = {
-    'edge_alpha': 1.,
+    'edge_alpha': 0.75,
     'border_alpha': 1.
 }
 
