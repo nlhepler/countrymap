@@ -80,10 +80,10 @@ def main(argv=None):
     }
 
     def draw(node):
-        try:
-            cm.draw_country(node, **country_kwargs)
-        except:
-            print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
+        # try:
+        cm.drawcountry(node, **country_kwargs)
+        # except:
+            # print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
 
     for node_ in sampled:
         node = _name2iso(node_)
@@ -99,7 +99,7 @@ def main(argv=None):
         dst = _name2iso(edge.get_destination().strip('"'))
 
         try:
-            cm.draw_gc(src, dst, **gc_kwargs)
+            cm.drawgc(src, dst, **gc_kwargs)
         except:
             pass
 
@@ -119,7 +119,7 @@ def main(argv=None):
         if node not in sampled:
             sampled.add(node)
             try:
-                cm.draw_country(node, color=colors['fade_color'], linewidth=0.)
+                cm.drawcountry(node, color=colors['fade_color'], linewidth=0.)
             except:
                 pass
 

@@ -17,7 +17,7 @@ setup(name='countrymap',
       license='GNU GPL version 3',
       packages=['countrymap'],
       package_dir={'countrymap': 'lib/countrymap'},
-      package_data={'countrymap': ['data/tmwb-0.3/TM_WORLD_BORDERS-0.3.*']},
+      package_data={'countrymap': ['data/latlons.json', 'data/ne/ne_110m_*']},
       data_files=[('/usr/local/bin', [
             'bin/plotgcnet'
       ])],
