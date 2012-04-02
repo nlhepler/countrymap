@@ -29,6 +29,7 @@ def main(argv=None):
     try:
         assert(len(args) >= 2)
         sampled = set()
+        colored = False
         pdffile = args.pop(-1)
         dotfile = args.pop(-1)
         for i in range(len(args)-1, -1, -1):
@@ -36,6 +37,9 @@ def main(argv=None):
             if arg[0] == '-':
                 if arg[1] == 'S':
                     sampled |= set(args.pop(i+1).split(','))
+                    del args[i]
+                elif arg[1] == 'C':
+                    colored = True
                     del args[i]
                 else:
                     assert(0)
@@ -83,11 +87,14 @@ def main(argv=None):
 
     def draw(node):
         # try:
-        kwargs = deepcopy(country_kwargs)
-        if node in country_colors:
-            kwargs['color'] = country_colors[node]
+        if colored:
+            kwargs = deepcopy(country_kwargs)
+            if node in country_colors:
+                kwargs['color'] = country_colors[node]
+            else:
+                kwargs['color'] = country_colors['UNK']
         else:
-            kwargs['color'] = country_colors['UNK']
+            kwargs = country_kwargs
         cm.drawcountry(node, **kwargs)
         # except:
             # print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
@@ -96,24 +103,25 @@ def main(argv=None):
         node = _name2iso(node_)
         draw(node)
 
-    # ignore this node, it's spurious 
+    # ignore this node, it's spurious
     sampled.add('node')
 
     graph = graph_from_dot_file(dotfile)
 
-    for edge in graph.get_edges():
-        src = _name2iso(edge.get_source().strip('"'))
-        dst = _name2iso(edge.get_destination().strip('"'))
+    if not colored:
+        for edge in graph.get_edges():
+            src = _name2iso(edge.get_source().strip('"'))
+            dst = _name2iso(edge.get_destination().strip('"'))
 
-        try:
-            cm.drawgc(src, dst, **gc_kwargs)
-        except:
-            pass
+            try:
+                cm.drawgc(src, dst, **gc_kwargs)
+            except:
+                pass
 
-        for node in (src, dst):
-            if node not in sampled:
-                sampled.add(node)
-                draw(node)
+            for node in (src, dst):
+                if node not in sampled:
+                    sampled.add(node)
+                    draw(node)
 
     for node_ in graph.get_nodes():
         node = _name2iso(node_.get_name().strip('"'))
