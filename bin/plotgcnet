@@ -108,12 +108,18 @@ def main(argv=None):
 
     graph = graph_from_dot_file(dotfile)
 
+    def nodecolor(node):
+        try:
+            return w3c_colors.get(edge.get_source().get_fillcolor().strip('"').lower())
+        except:
+            return None
+
     if not colored:
         for edge in graph.get_edges():
             src = _name2iso(edge.get_source().strip('"'))
-            src_color = w3c_colors.get(edge.get_source().get_fillcolor().strip('"').lower())
+            src_color = nodecolor(edge.get_source())
             dst = _name2iso(edge.get_destination().strip('"'))
-            dst_color = w3c_colors.get(edge.get_destination().get_fillcolor().strip('"').lower())
+            dst_color = nodecolor(edge.get_destination())
 
             try:
                 cm.drawgc(src, dst, **gc_kwargs)
@@ -127,7 +133,7 @@ def main(argv=None):
 
     for node_ in graph.get_nodes():
         node = _name2iso(node_.get_name().strip('"'))
-        color = w3c_colors.get(node_.get_fillcolor().strip('"').lower())
+        color = nodecolor(node_)
         if node not in sampled:
             sampled.add(node)
             draw(node, color)
