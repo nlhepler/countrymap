@@ -39,8 +39,8 @@ colors = {
 
 
 linewidths = {
-    'border_width': 0.09375,
-    'edge_width': 0.09375,
+    'border_width': 0.1875,
+    'edge_width': 0.1875,
 }
 
 
