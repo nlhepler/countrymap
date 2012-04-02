@@ -52,7 +52,8 @@ alphas = {
 
 _dead_countries = {
     'CS': ['ME', 'RS'],
-    'YU': ['BA', 'HR', 'ME', 'MK', 'RS', 'SI']
+    'YU': ['BA', 'HR', 'ME', 'MK', 'RS', 'SI'],
+    'SD': ['SD', 'SS']
 }
 
 
