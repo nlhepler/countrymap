@@ -2,6 +2,8 @@
 
 import sys
 
+from copy import deepcopy
+
 import matplotlib as mpl
 mpl.use('pdf')
 
@@ -9,7 +11,7 @@ import matplotlib.pyplot as plt
 
 from pydot import graph_from_dot_file
 
-from countrymap import CountryMap, alphas, colors, enclaves, linewidths
+from countrymap import CountryMap, country_colors, alphas, colors, enclaves, linewidths
 
 
 def _name2iso(name):
@@ -81,7 +83,12 @@ def main(argv=None):
 
     def draw(node):
         # try:
-        cm.drawcountry(node, **country_kwargs)
+        kwargs = deepcopy(country_kwargs)
+        if node in country_colors:
+            kwargs['color'] = country_colors[node]
+        else:
+            kwargs['color'] = country_colors['UNK']
+        cm.drawcountry(node, **kwargs)
         # except:
             # print("country '%s' unrecognized, skipping" % node, file=sys.stderr)
 

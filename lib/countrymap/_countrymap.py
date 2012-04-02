@@ -14,9 +14,6 @@ from mpl_toolkits.basemap.pyproj import Geod
 from mpl_toolkits.basemap.shapefile import Reader as ShapeReader
 
 
-__version__ = '0.0.1'
-
-
 __all__ = [
     'colors',
     'alphas',
