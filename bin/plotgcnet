@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 from pydot import graph_from_dot_file
 
-from countrymap import CountryMap, country_colors, alphas, colors, enclaves, linewidths
+from countrymap import CountryMap, w3c_colors, alphas, colors, enclaves, linewidths
 
 
 def _name2iso(name):
@@ -85,14 +85,14 @@ def main(argv=None):
         'zorder': 25
     }
 
-    def draw(node):
+    def draw(node, color=None):
         # try:
         if colored:
             kwargs = deepcopy(country_kwargs)
-            if node in country_colors:
-                kwargs['color'] = country_colors[node]
+            if color is None:
+                kwargs['color'] = '#736f6e'
             else:
-                kwargs['color'] = country_colors['UNK']
+                kwargs['color'] = color
         else:
             kwargs = country_kwargs
         cm.drawcountry(node, **kwargs)
@@ -111,23 +111,26 @@ def main(argv=None):
     if not colored:
         for edge in graph.get_edges():
             src = _name2iso(edge.get_source().strip('"'))
+            src_color = w3c_colors.get(edge.get_source().get_fillcolor().strip('"').lower())
             dst = _name2iso(edge.get_destination().strip('"'))
+            dst_color = w3c_colors.get(edge.get_destination().get_fillcolor().strip('"').lower())
 
             try:
                 cm.drawgc(src, dst, **gc_kwargs)
             except:
                 pass
 
-            for node in (src, dst):
+            for node, color in ((src, src_color), (dst, dst_color)):
                 if node not in sampled:
                     sampled.add(node)
-                    draw(node)
+                    draw(node, color)
 
     for node_ in graph.get_nodes():
         node = _name2iso(node_.get_name().strip('"'))
+        color = w3c_colors.get(node_.get_fillcolor().strip('"').lower())
         if node not in sampled:
             sampled.add(node)
-            draw(node)
+            draw(node, color)
 
     # re-fade enclaves we've not sampled
     for node in enclaves:
