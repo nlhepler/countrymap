@@ -52,8 +52,7 @@ alphas = {
 
 _dead_countries = {
     'CS': ['ME', 'RS'],
-    'YU': ['BA', 'HR', 'ME', 'MK', 'RS', 'SI'],
-    'SD': ['SD', 'SS']
+    'YU': ['BA', 'HR', 'ME', 'MK', 'RS', 'SI']
 }
 
 
@@ -282,6 +281,9 @@ class CountryMap(Basemap):
         self._lakeshapes = getshapesfromfile(lakeshapes)
         self._landshapes = getshapesfromfile(landshapes)
         self._isodict = data2isodict(shapefile2data(countryshapes, countries=True))
+
+        # fix sudan + south sudan
+        self._isodict['SD'][0]['SHAPE'] += self._isodict['SS'][0]['SHAPE']
 
         # verify this data exists, we'll probably need it
         for iso2, vs in self._isodict.items():
