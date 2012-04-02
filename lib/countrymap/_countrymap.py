@@ -60,8 +60,7 @@ _dead_countries = {
 enclaves = [
     'LS',
     'SM',
-    'VA',
-    'GF'
+    'VA'
 ]
 
 
